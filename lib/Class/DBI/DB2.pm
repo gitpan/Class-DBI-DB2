@@ -33,7 +33,7 @@ This is an extension to Class::DBI that currently implements:
 
 	* Automatic column name discovery.
 	
-	* Automatic primary key detection.
+	* Automatic primary key(s) detection.
 
 	* Automatic column type detection (for use with autoinflate).
 
@@ -48,7 +48,7 @@ require Class::DBI;
 use base 'Class::DBI';
 
 use vars qw($VERSION);
-$VERSION = '0.12';
+$VERSION = '0.13';
 
 =head1 OBJECT METHODS
 
@@ -67,7 +67,7 @@ columns into a variety of groupings, sometimes you just want to create the
 
 The columns call will extract the list of all the columns, and the primary key
 and set them up for you. It will die horribly if the table contains
-no primary key, or has a composite primary key.
+no primary key(s).
 
 =cut
 
@@ -76,8 +76,6 @@ sub _croak { require Carp; Carp::croak(@_); }
 __PACKAGE__->set_sql(
 	create_table => 'CREATE TABLE __TABLE__ (%s)');
 __PACKAGE__->set_sql(drop_table => 'DROP TABLE __TABLE__');
-__PACKAGE__->set_sql(
-             primaries => "SELECT c.COLNAME FROM SYSCAT.KEYCOLUSE kc, SYSCAT.TABCONST tc,  SYSCAT.COLUMNS c WHERE kc.CONSTNAME=tc.CONSTNAME AND kc.TABSCHEMA=tc.TABSCHEMA AND kc.TABNAME=tc.TABNAME AND kc.TABSCHEMA=c.TABSCHEMA AND kc.TABNAME=c.TABNAME AND kc.COLNAME=c.COLNAME AND kc.TABSCHEMA = ? AND kc.TABNAME = ? AND tc.TYPE = 'P' ORDER BY kc.COLSEQ");
 __PACKAGE__->set_sql(
         desc_table => "SELECT COLNAME, COLNO, TYPENAME, NULLS FROM SYSCAT.COLUMNS WHERE TABSCHEMA = ? and TABNAME = ? order by colno");
 __PACKAGE__->set_sql(
@@ -89,47 +87,40 @@ sub desc_table {
 	return $class->search_desc_table(uc($tabschema),uc($table));
 }
 
-sub primary {
-  my $class = shift;
-  my ($tabschema,$table) = split '\.', $class->table;
-  return $class->sql_primaries->select_val(uc($tabschema),uc($table));
-}
-
 sub set_up_table
 {
 	my $class = shift;
 	$class->table( my $tabname = shift || $class->table );
 	my $dbh = $class->db_Main;
         my ($tabschema,$table) = split '\.', $class->table;
+# print "setting up $tabschema.$table\n";
 
-	# find primary keys(s)
-        my $primary = $class->primary();
+	# find primary key(s)
+	my ( @primary );
+	my $sth = $dbh->prepare(<<"SQL");
+SELECT c.COLNAME FROM SYSCAT.KEYCOLUSE kc, SYSCAT.TABCONST tc,  SYSCAT.COLUMNS c
+WHERE kc.CONSTNAME=tc.CONSTNAME AND kc.TABSCHEMA=tc.TABSCHEMA 
+AND kc.TABNAME=tc.TABNAME AND kc.TABSCHEMA=c.TABSCHEMA AND 
+kc.TABNAME=c.TABNAME AND kc.COLNAME=c.COLNAME AND kc.TABSCHEMA = ? AND 
+kc.TABNAME = ? AND tc.TYPE = 'P' ORDER BY kc.COLSEQ
+SQL
+  	$sth->execute( uc($tabschema), uc($table) );
+ 	my $primaries = $sth->fetchall_arrayref; $sth->finish;
+        map {push @primary, $_->[0]} @$primaries;
+	$class->_croak("$table has no primary key") unless @primary;
 
 	# find all columns
-# $class->search_desc_table fails here but works later -- not sure why
-#        my @columns = $class->desc_table();
-# 	my ( @cols );
-#  	foreach my $col (@columns) {
-# 	  push @cols, $col->{colname};
-#        }
-
-# doin' columns the old-fashioned way...
-	my $sth = $dbh->prepare(<<"SQL");
+	my ( @cols );
+	$sth = $dbh->prepare(<<"SQL");
 SELECT COLNAME, COLNO, TYPENAME, NULLS FROM SYSCAT.COLUMNS 
 WHERE TABSCHEMA = ? and TABNAME = ? order by colno 
 SQL
   	$sth->execute( uc($tabschema), uc($table) );
- 	my $columns = $sth->fetchall_arrayref;
- 	$sth->finish;
-	my ( @cols );
- 	foreach my $col (@$columns)
-	{
-		push @cols, $col->[0];
-	}
+ 	my $columns = $sth->fetchall_arrayref; $sth->finish;
+        map {push @cols, $_->[0]} @$columns;
 
-	$class->_croak("$table has no primary key") unless $primary;
 	$class->columns( All     => @cols );
-	$class->columns( Primary => $primary );
+	$class->columns( Primary => @primary );
 }
 
 =head2 autoinflate

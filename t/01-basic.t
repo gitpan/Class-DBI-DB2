@@ -30,7 +30,7 @@ __PACKAGE__->table($tbl);
 __PACKAGE__->drop_table;
 __PACKAGE__->create_table(q{
    id     INTEGER     NOT NULL,
-   foo    VARCHAR(10),
+   foo    VARCHAR(10) NOT NULL,
    bar    VARCHAR(10),
    mydate DATE,
    PRIMARY KEY(id) 
@@ -74,7 +74,7 @@ is(Foo->columns, 4);
 
 is(Foo->column_type("Foo"),"VARCHAR");
 is(Foo->column_no("Foo"),1);
-is(Foo->column_nulls("Foo"),"Y");
+is(Foo->column_nulls("Foo"),"N");
 is(Foo->column_nulls("Id"),"N");
 
 my @columns = sort Foo->columns('All');
