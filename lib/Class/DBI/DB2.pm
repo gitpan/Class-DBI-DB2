@@ -41,14 +41,16 @@ This is an extension to Class::DBI that currently implements:
 
 Instead of setting Class::DBI as your base class, use this.
 
+=cut
+
 use strict;
 require Class::DBI;
 use base 'Class::DBI';
 
 use vars qw($VERSION);
-$VERSION = '0.10';
+$VERSION = '0.11';
 
-=head1 METHODS
+=head1 OBJECT METHODS
 
 =head2 set_up_table
 
@@ -191,13 +193,15 @@ A typical use would be:
 	Music::CD->table('cd');
 	Music::CD->create_table(q{
 	  cdid   INTEGER NOT NULL,
-	  artist INTEGER,
-	  title  VARCHAR(255),
+	  artist INTEGER NOT NULL,
+	  title  VARCHAR(255) NOT NULL,
 	  year   DATE,
-          PRIMARY KEY(name),
+          PRIMARY KEY(cdid),
           CONSTRAINT TITLE_UNIQ UNIQUE (artist,title)
 	});
 	Music::CD->set_up_table;
+
+=cut
 
 sub create_table {
   my ($class, $schema) = @_;
@@ -268,6 +272,10 @@ sub column_type {
 	return $class->_column_info->{uc($col)}->{typename};
 }
 
+=head1 AUTHOR
+
+Mark Ferris, E<lt>mark.ferris@geac.comE<gt>.
+
 =head1 COPYRIGHT
 
 Copyright (C) 2004 Mark Ferris. All rights reserved.
@@ -275,13 +283,9 @@ Copyright (C) 2004 Mark Ferris. All rights reserved.
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
-=head1 AUTHOR
-
-Mark Ferris, E<lt>mark.ferris@geac.comE<gt>.
-
 =head1 SEE ALSO
 
-L<Class::DBI>. IBM DB2 (http://www-306.ibm.com/software/data/db2/)
+L<Class::DBI>. IBM DB2 (http://www-4.ibm.com/software/data/db2/)
 
 =cut
 
