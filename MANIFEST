@@ -5,5 +5,4 @@ MANIFEST
 lib/Class/DBI/DB2.pm
 README
 t/01-basic.t
-
-
+t/01-compile.t

@@ -48,7 +48,7 @@ require Class::DBI;
 use base 'Class::DBI';
 
 use vars qw($VERSION);
-$VERSION = '0.13';
+$VERSION = '0.14';
 
 =head1 OBJECT METHODS
 
@@ -93,7 +93,6 @@ sub set_up_table
 	$class->table( my $tabname = shift || $class->table );
 	my $dbh = $class->db_Main;
         my ($tabschema,$table) = split '\.', $class->table;
-# print "setting up $tabschema.$table\n";
 
 	# find primary key(s)
 	my ( @primary );
@@ -221,20 +220,20 @@ sub drop_table {
 
 	my $type = $class->column_type('column_name');
 
-This returns the 'typename' of this table (VARCHAR(20), INTEGER, etc.)
+This returns the 'typename' of this table's 'column_name' (VARCHAR(20), INTEGER, etc.)
 
 =head2 column_no
 
 	my $colno = $class->column_no('column_name');
 
-This returns the 'colno' of this table (0..n)  Useful when a column order 
+This returns the 'colno' of this table's 'column_name' (0..n)  Useful when a column order 
 is needed, for example, when loading a table from a flat-file.
 
 =head2 column_nulls
 
 	my $null = $class->column_nulls('column_name');
 
-This returns the 'nulls' of this table (Y,N) 
+This returns the 'nulls' of this table's 'column_name' (Y,N) 
 
 =cut
 
