@@ -21,7 +21,7 @@ my $db     = $ENV{DBD_DB2_DBNAME} || read_input("please specify the writable db 
 my $user   = $ENV{DBD_DB2_USER}   || read_input("please specify the DB2 username to use");
 my $pass   = $ENV{DBD_DB2_PASSWD} || read_input("please specify the DB2 password to use");
 my $table    = $ENV{DBD_DB2_TABLE}  || read_input("please specify a DB2 table name to create/test/drop");
-my $tbl = $schema .".".$table;
+my $tbl = $schema ."\.".$table;
 
 __PACKAGE__->set_db( Main => "dbi:DB2:$db", $user, $pass, 
 #    { AutoCommit => 1, PrintError => 0, RaiseError => 1, }

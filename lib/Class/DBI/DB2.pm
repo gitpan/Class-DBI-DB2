@@ -48,13 +48,17 @@ require Class::DBI;
 use base 'Class::DBI';
 
 use vars qw($VERSION);
-$VERSION = '0.15';
+$VERSION = '0.16';
 
 =head1 OBJECT METHODS
 
 =head2 set_up_table
 
 	__PACKAGE__->set_up_table("table_name");
+
+An optional second argument can supply your own alias for your table name.
+
+	__PACKAGE__->set_up_table("table_name", "table_alias");
 
 Traditionally, to use Class::DBI, you have to set up the columns:
 
@@ -90,7 +94,7 @@ sub desc_table {
 sub set_up_table
 {
 	my $class = shift;
-	$class->table( my $tabname = shift || $class->table );
+	$class->table( my $tabname = shift || $class->table, shift );
 	my $dbh = $class->db_Main;
         my ($tabschema,$table) = split '\.', $class->table;
 
