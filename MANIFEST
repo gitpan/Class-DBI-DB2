@@ -2,7 +2,7 @@ Changes
 INSTALL
 Makefile.PL
 MANIFEST
-lib/DBI/Class/DB2.pm
+lib/Class/DBI/DB2.pm
 README
 t/01-basic.t
 

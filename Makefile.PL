@@ -1,16 +1,15 @@
 use ExtUtils::MakeMaker;
 
-my $PACKAGE = 'Class::DBI::DB2';
-my $LOCN    = 'lib/Class/DBI/DB2.pm';
-
 WriteMakefile(
-	AUTHOR        => 'Mark Ferris <mark.ferris@geac.com>',
-	NAME          => $PACKAGE,
-	ABSTRACT_FROM => $LOCN,
-	VERSION_FROM  => $LOCN,
-	PREREQ_PM     => {
-		'Class::DBI' => 0.96,
-		'Test::More' => 0.45,
-		'DBD::DB2' => 0,
-	},
+    NAME         => 'Class::DBI::DB2',
+    VERSION_FROM => 'lib/Class/DBI/DB2.pm',
+    PREREQ_PM    => { 'Class::DBI' => 0.06, 'Test::More' => 0.47, 'DBD::DB2' => 0, },
+    ( $] >= 5.005
+    ? (    # Add these new keywords supported since 5.005
+          ABSTRACT_FROM => 'lib/Class/DBI/DB2.pm',
+          AUTHOR        =>
+          'Mark Ferris <mark.ferris@geac.com>',
+    )
+    : () ),
 );
+

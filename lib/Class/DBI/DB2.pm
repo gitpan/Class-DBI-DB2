@@ -48,7 +48,7 @@ require Class::DBI;
 use base 'Class::DBI';
 
 use vars qw($VERSION);
-$VERSION = '0.11';
+$VERSION = '0.12';
 
 =head1 OBJECT METHODS
 
